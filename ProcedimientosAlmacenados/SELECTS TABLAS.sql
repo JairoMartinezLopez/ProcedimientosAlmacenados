@@ -6,13 +6,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE ACCIONES
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_ACCIONES]
+CREATE PROCEDURE [dbo].[PA_SEL_ACCIONES]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idAccion,
+        idAccion,
         Clave,
         Nombre,
         Descripcion,
@@ -31,13 +31,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE AREAS
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_AREAS]
+CREATE PROCEDURE [dbo].[PA_SEL_AREAS]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idArea,
+        idArea,
         Clave,
         Nombre,
         Direccion,
@@ -60,13 +60,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE BIENES
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_BIENES]
+CREATE PROCEDURE [dbo].[PA_SEL_BIENES]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idBien,
+        idBien,
         idColor,
         FechaRegistro,
         FechaAlta,
@@ -102,13 +102,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE EVENTOSESTADO
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_EVENTOSESTADO]
+CREATE PROCEDURE [dbo].[PA_SEL_EVENTOSESTADO]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idEventoEstado,
+        idEventoEstado,
         Clave,
 		Nombre,
 		Descripcion,
@@ -127,7 +127,7 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE EVENTOSINVENTARIO
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_EVENTOSINVENTARIO]
+CREATE PROCEDURE [dbo].[PA_SEL_EVENTOSINVENTARIO]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -162,20 +162,25 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        idEventoInventario,
-		Folio,
-        FechaInicio,
-        FechaTermino,
-        idArea,
-        idGeneral,
-        idEventoEstado,
-        Activo
+        EI.idEventoInventario,
+        EI.Folio,
+        EI.FechaInicio,
+        EI.FechaTermino,
+        -- Ahora seleccionamos el Nombre del área en lugar de solo el IdArea
+        A.Nombre AS NombreArea, -- Asignamos un alias para mayor claridad en el resultado
+        EI.idGeneral,
+        EE.Nombre AS NombreEstadoEvento,
+        EI.Activo
     FROM
-        dbo.EVENTOSINVENTARIO
-	WHERE 
-		idGeneral = @IdGeneral
+        dbo.EVENTOSINVENTARIO AS EI -- Usamos alias 'EI' para EVENTOSINVENTARIO
+    INNER JOIN
+        dbo.AREAS AS A ON EI.idArea = A.idArea-- Unimos con la tabla AREAS
+	INNER JOIN
+        dbo.EVENTOSESTADO AS EE ON EE.idEventoEstado = EI.idEventoEstado
+    WHERE
+        EI.idGeneral = @IdGeneral
     ORDER BY
-        FechaInicio DESC; -- Ordenar por fecha de inicio más reciente
+        EI.FechaInicio DESC; -- Ordenar por fecha de inicio más reciente
 	
 END;
 GO
@@ -186,13 +191,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE FACTURAS
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_FACTURAS]
+CREATE PROCEDURE [dbo].[PA_SEL_FACTURAS]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idFactura,
+        idFactura,
         NumeroFactura,
         FolioFiscal,
         FechaFactura,
@@ -219,7 +224,7 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR REGISTROS DE LEVANTAMIENTOSINVENTARIO FILTRADOS POR ID DE EVENTO
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_LEVANTAMIENTOSINVENTARIO_BY_EVENTO]
+CREATE PROCEDURE [dbo].[PA_SEL_LEVANTAMIENTOSINVENTARIO_BY_EVENTO]
     @idEventoInventario INT
 AS
 BEGIN
@@ -233,7 +238,7 @@ BEGIN
     END
 
     SELECT
-        --idLevantamientoInventario,
+        idLevantamientoInventario,
         idBien,
         idEventoInventario,
         Observaciones,
@@ -255,13 +260,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE MODULOS
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_MODULOS]
+CREATE PROCEDURE [dbo].[PA_SEL_MODULOS]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idModulo,
+        idModulo,
         Clave,
         Nombre,
         Descripcion,
@@ -280,13 +285,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE PERMISOS
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_PERMISOS]
+CREATE PROCEDURE [dbo].[PA_SEL_PERMISOS]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idPermiso,
+        idPermiso,
         Clave,
         Nombre,
         Descripcion,
@@ -307,7 +312,7 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE REGIONES
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_REGIONES]
+CREATE PROCEDURE [dbo].[PA_SEL_REGIONES]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -332,7 +337,7 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR REGIONES FILTRADAS POR ID GENERAL
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_REGIONES_BY_IDGENERAL]
+CREATE PROCEDURE [dbo].[PA_SEL_REGIONES_BY_IDGENERAL]
     @idGeneral INT
 AS
 BEGIN
@@ -360,13 +365,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE ROLES
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_ROLES]
+CREATE PROCEDURE [dbo].[PA_SEL_ROLES]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idRol,
+        idRol,
         Clave,
         Nombre,
         Descripcion,
@@ -385,13 +390,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE TRANSFERENCIAS
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_TRANSFERENCIAS]
+CREATE PROCEDURE [dbo].[PA_SEL_TRANSFERENCIAS]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idTransferencia,
+        idTransferencia,
         Folio,
         FechaRegistro,
         Observaciones,
@@ -413,13 +418,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE UBICACIONESFISICAS
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_UBICACIONESFISICAS]
+CREATE PROCEDURE [dbo].[PA_SEL_UBICACIONESFISICAS]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idUbicacionFisica,
+        idUbicacionFisica,
         FechaCaptura,
 		idBien,
         FechaTransferencia,
@@ -438,7 +443,7 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE UNIDADESRESPONSABLES
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_UNIDADESRESPONSABLES]
+CREATE PROCEDURE [dbo].[PA_SEL_UNIDADESRESPONSABLES]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -467,13 +472,13 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE USUARIOS
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_USUARIOS]
+CREATE PROCEDURE [dbo].[PA_SEL_USUARIOS]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        --idUsuario,
+        idUsuario,
         NombreUsuario,
         NombreApellidos,
         Password,
@@ -492,7 +497,7 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE USUARIOSPERMISOS
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-ALTER PROCEDURE [dbo].[PA_SEL_USUARIOSPERMISOS]
+CREATE PROCEDURE [dbo].[PA_SEL_USUARIOSPERMISOS]
 AS
 BEGIN
     SET NOCOUNT ON;

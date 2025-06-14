@@ -43,20 +43,29 @@ BEGIN
         B.NoInventario,
         B.Serie,
         B.Modelo,
-        B.Observaciones, -- Observaciones del bien
+		CC.Nombre AS Color,
+		CM.Nombre AS Marca,
+		F.NumeroFactura AS NoFactura,
+        --B.Observaciones, -- Observaciones del bien
         B.Activo,        -- Estado activo del bien
         B.Disponibilidad,
         -- Información del levantamiento si existe para este bien en este evento
-        --LI.idLevantamientoInventario,
+        LI.idLevantamientoInventario,
         LI.ExisteElBien,
-        --LI.FechaVerificacion,
+        LI.FechaVerificacion,
         --LI.FueActualizado,
-        --LI.Observaciones AS ObservacionesLevantamiento, -- Observaciones de la verificación
+        LI.Observaciones AS ObservacionesLevantamiento, -- Observaciones de la verificación
         CASE WHEN LI.idLevantamientoInventario IS NOT NULL THEN 1 ELSE 0 END AS YaVerificado
     FROM
         dbo.BIENES AS B
     INNER JOIN
         UbicacionActivaActual AS UAA ON B.idBien = UAA.idBien
+	INNER JOIN
+        dbo.CAT_COLORES AS CC ON B.idColor = CC.idColor
+	INNER JOIN
+        dbo.CAT_MARCAS AS CM ON B.idMarca = CM.idMarca
+	INNER JOIN
+        dbo.FACTURAS AS F ON B.idFactura = F.idFactura
     LEFT JOIN
         dbo.LEVANTAMIENTOSINVENTARIO AS LI ON B.idBien = LI.idBien AND LI.idEventoInventario = @idEventoInventario
     WHERE
