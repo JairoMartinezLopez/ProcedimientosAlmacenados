@@ -60,37 +60,58 @@ GO
 	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR TODOS LOS REGISTROS DE BIENES
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 **********************************************************************************/
-CREATE PROCEDURE [dbo].[PA_SEL_BIENES]
+ALTER PROCEDURE [dbo].[PA_SEL_BIENES]
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT
-        idBien,
-        idColor,
-        FechaRegistro,
-        FechaAlta,
-        Aviso,
-        Serie,
-        Modelo,
-        idEstadoFisico,
-        idMarca,
-        Costo,
-        Etiquetado,
-        FechaEtiquetado,
-        Disponibilidad,
-        FechaBaja,
-        idCausalBaja,
-        idDisposicionFinal,
-        idFactura,
-        NoInventario,
-        idCatalogoBien,
-        Observaciones,
-        AplicaUMAS,
-        Salida,
-		Activo
+	SELECT
+		B.idBien,
+        -- Nombre del Color
+        CC.Nombre AS NombreColor,
+        b.FechaRegistro,
+        b.FechaAlta,
+        b.Aviso,
+        b.Serie,
+        b.Modelo,
+        -- Nombre del Estado Físico
+        CEF.Nombre AS NombreEstadoFisico,
+        -- Nombre de la Marca
+        CM.Nombre AS NombreMarca,
+        B.Costo,
+        B.Etiquetado,
+        B.FechaEtiquetado,
+        B.Disponibilidad,
+        B.FechaBaja,
+        -- Nombre de la Causal de Baja
+        CCB.Nombre AS NombreCausalBaja,
+        -- Nombre de la Disposición Final
+        CDF.Nombre AS NombreDisposicionFinal,
+        -- Número de Factura
+        F.NumeroFactura AS NumeroFactura,
+        B.NoInventario,
+        -- Nombre del Catálogo de Bien
+        ISNULL(cb.Nombre, 'N/A') AS NombreCatalogoBien,
+        B.Observaciones,
+        B.AplicaUMAS,
+        B.Salida,
+        B.Activo
     FROM
-        dbo.BIENES
+        dbo.BIENES AS B
+    LEFT JOIN
+        dbo.CAT_COLORES AS CC ON B.idColor = CC.idColor
+    LEFT JOIN
+        dbo.CAT_MARCAS AS CM ON B.idMarca = CM.idMarca
+    LEFT JOIN
+        dbo.CAT_ESTADOSFISICOS AS CEF ON B.idEstadoFisico = CEF.idEstadoFisico
+    LEFT JOIN
+        dbo.CAT_CAUSALBAJAS AS CCB ON B.idCausalBaja = CCB.idCausalBaja
+    LEFT JOIN
+        dbo.CAT_DISPOSICIONESFINALES AS CDF ON B.idDisposicionFinal = CDF.idDisposicionFinal
+    LEFT JOIN
+        dbo.FACTURAS AS F ON B.idFactura = F.idFactura
+    LEFT JOIN
+        dbo.CAT_BIENES AS CB ON B.idCatalogoBien = CB.idCatalogoBien
     ORDER BY
         NoInventario; -- Se ordena por el número de inventario para una lista lógica.
 END;
