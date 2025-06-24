@@ -1,6 +1,16 @@
 USE [bdInventario];
 GO
 
+EXEC [dbo].[PA_SEL_ReporteTransferenciaDesarrollado]
+    @IdGeneral = 300,             -- Un ID de usuario o general para el registro en bitácora.
+    @IdPantalla = 45,             -- Un ID de pantalla desde donde se invoca el reporte.
+    @idFinanciamiento = 1,        -- 0 = No aplicar filtro de financiamiento (incluir todos).
+    @Anio = 2025,                 -- Año de las transferencias a reportar.
+    @Mes = 0,                     -- Mes de las transferencias a reportar (Septiembre).
+    @UnidadResponsable = 0,       -- 0 = Filtrar por la unidad responsable con ID 584 (IdAreaOrigen de la transferencia).
+    @Umas = 0;  
+GO
+
 EXEC [dbo].[PA_SEL_ReporteBajasDetallado]
     @IdGeneral = 1,                 -- ID general para bitácora (ejemplo)
     @IdPantalla = 101,              -- ID de pantalla para bitácora (ejemplo)
