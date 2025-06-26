@@ -1,4 +1,15 @@
-USE [bdInventario];
+USE [bdInventario]
+GO
+
+EXEC [dbo].[PA_SEL_ReporteTipoBien]
+    @IdGeneral = 50,              -- ID general del usuario o proceso.
+    @IdPantalla = 75,             -- ID de la pantalla o módulo.
+    @idFinanciamiento = 0,        -- 0 = Incluir bienes de cualquier financiamiento.
+    @idTipoBien = 17,              -- Filtrar por Tipo de Bien con ID 1.
+    @idBien = 0,                  -- 0 = Incluir bienes de cualquier catálogo de bienes dentro del tipo.
+    @idArea = 0,                -- Filtrar por bienes en el Área con ID 123.
+    @Umas = 0,                    -- 1 = Filtrar solo bienes que aplican UMAS (Costo >= 70 * ValorUMA).
+    @UnidadResponsable = 0       -- 0 = Incluir bienes de cualquier unidad responsable (asociada al área).
 GO
 
 EXEC [dbo].[PA_SEL_ReporteTransferenciaConcentrado]
@@ -32,9 +43,6 @@ EXEC [dbo].[PA_SEL_ReporteBajasDetallado]
     @Umas = 0;                -- 0 = No filtra por UMAS (incluye todos)
 GO
 
-USE [bdInventario];
-GO
-
 EXEC [dbo].[PA_SEL_ReporteBajasConcentrado]
     @IdGeneral = 1,                 -- ID general para bitácora (ejemplo)
     @IdPantalla = 101,              -- ID de pantalla para bitácora (ejemplo)
@@ -45,8 +53,6 @@ EXEC [dbo].[PA_SEL_ReporteBajasConcentrado]
     @IdArea = 0,                    -- 0 = Todas las áreas
     @AplicaUmas = 0;                -- 0 = No filtra por UMAS (incluye todos)
 GO
-use [bdInventario]
-go
 
 EXEC [dbo].[PA_SEL_ReporteAltasDesglozado]
     @IdGeneral = 101,             -- Un ID de usuario o general para el registro en bitácora.
@@ -56,9 +62,6 @@ EXEC [dbo].[PA_SEL_ReporteAltasDesglozado]
     @Mes = 06,                     -- Mes de las altas a reportar (Agosto).
     @UnidadResponsable = 2,       -- 0 = Filtrar por la unidad responsable con ID 584.
     @Umas = 0;                    -- 0 = No aplicar filtro de UMAS (incluir bienes que apliquen o no UMAS).
-
-USE [bdInventario]
-GO
 
 DECLARE @return_value int;
 DECLARE @p_FechaRegistro DATETIME = GETDATE(); -- Fecha y hora actual de la transferencia
@@ -79,10 +82,6 @@ SELECT 'Return Value' = @return_value;
 GO
 
 SELECT * FROM dbo.TRANSFERENCIAS WHERE Folio = 'TRANS-2025-001';
-
-
-USE [bdInventario]
-GO
 
 DECLARE @return_value int
 
@@ -173,3 +172,53 @@ EXEC @return_value = [dbo].[PA_INS_BIENES]
 
 SELECT 'Return Value' = @return_value
 GO
+
+USE [bdInventario]
+GO
+
+-- Variables comunes para la ejecución
+DECLARE @p_FechaTransferencia DATETIME = GETDATE(); -- La fecha en que se realiza la transferencia
+DECLARE @p_idTransferencia INT = 2165;             -- ID de la transferencia a la que se asocian los bienes
+DECLARE @p_IdPantalla INT = 106;                   -- ID de la pantalla desde la que se realiza la asignación (ej. "Ubicaciones Físicas")
+DECLARE @p_IdGeneral INT = 203;                    -- ID del usuario que realiza la operación
+
+DECLARE @return_value int;
+
+-- Ejecución para el bien 59324
+PRINT 'Ejecutando PA_INS_UBICACIONESFISICAS para idBien: 59324';
+EXEC @return_value = [dbo].[PA_INS_UBICACIONESFISICAS]
+    @idBien = 59324,
+    @FechaTransferencia = @p_FechaTransferencia,
+    @idTransferencia = @p_idTransferencia,
+    @IdPantalla = @p_IdPantalla,
+    @IdGeneral = @p_IdGeneral;
+SELECT 'Return Value (59324)' = @return_value;
+
+-- Ejecución para el bien 59323
+PRINT 'Ejecutando PA_INS_UBICACIONESFISICAS para idBien: 59323';
+EXEC @return_value = [dbo].[PA_INS_UBICACIONESFISICAS]
+    @idBien = 59323,
+    @FechaTransferencia = @p_FechaTransferencia,
+    @idTransferencia = @p_idTransferencia,
+    @IdPantalla = @p_IdPantalla,
+    @IdGeneral = @p_IdGeneral;
+SELECT 'Return Value (59323)' = @return_value;
+
+-- Ejecución para el bien 59322
+PRINT 'Ejecutando PA_INS_UBICACIONESFISICAS para idBien: 59322';
+EXEC @return_value = [dbo].[PA_INS_UBICACIONESFISICAS]
+    @idBien = 59322,
+    @FechaTransferencia = @p_FechaTransferencia,
+    @idTransferencia = @p_idTransferencia,
+    @IdPantalla = @p_IdPantalla,
+    @IdGeneral = @p_IdGeneral;
+SELECT 'Return Value (59322)' = @return_value;
+
+GO
+
+-- Opcional: Verificar los registros insertados/actualizados
+-- Puedes verificar que solo hay un registro "Activo = 1" para cada bien
+SELECT *
+FROM dbo.UBICACIONESFISICAS
+WHERE idBien IN (59324, 59323, 59322)
+ORDER BY idBien, FechaCaptura DESC;
