@@ -1,6 +1,20 @@
 USE [bdInventario]
 GO
 
+EXEC [dbo].[PA_SEL_ReporteTipoBienPesos]
+    @IdGeneral = 50,              -- ID general del usuario o proceso.
+    @IdPantalla = 75,             -- ID de la pantalla o módulo.
+    @idFinanciamiento = 0,        -- 0 = Incluir bienes de cualquier financiamiento.
+    @idTipoBien = 31,             -- Filtrar por Tipo de Bien con ID 1.
+	@Anio = 2025,				  -- Filtro por año a cuatro digutos
+	@Mes = 0,					  -- 0 = Filtrar por todo el año
+    --@idBien = 0,                  -- 0 = Incluir bienes de cualquier catálogo de bienes dentro del tipo.
+    --@idArea = 0,                -- Filtrar por bienes en el Área con ID 123.
+    @Umas = 0,                    -- 1 = Filtrar solo bienes que aplican UMAS (Costo >= 70 * ValorUMA).
+    @UnidadResponsable = 0       -- 0 = Incluir bienes de cualquier unidad responsable (asociada al área).
+GO
+
+
 EXEC [dbo].[PA_SEL_ReporteTipoBien]
     @IdGeneral = 50,              -- ID general del usuario o proceso.
     @IdPantalla = 75,             -- ID de la pantalla o módulo.
