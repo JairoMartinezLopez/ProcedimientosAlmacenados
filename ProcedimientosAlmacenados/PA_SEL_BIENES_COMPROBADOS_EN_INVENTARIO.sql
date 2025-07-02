@@ -15,6 +15,19 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+	DECLARE @AreaEvento INT;
+    SELECT @AreaEvento = idArea FROM dbo.EVENTOSINVENTARIO WHERE idEventoInventario = @idEventoInventario;
+
+	DECLARE @NombreAreaTitulo NVARCHAR(200);
+	DECLARE @ClaveArea NVARCHAR(50);
+	DECLARE @NombreArea NVARCHAR(150);
+
+	SELECT @ClaveArea = Clave,@NombreArea = Nombre FROM AREAS WHERE idArea = @AreaEvento;
+		-- Concatena las dos columnas en una sola variable
+	SET @NombreAreaTitulo = ISNULL(@ClaveArea, '') + ' - ' + ISNULL(@NombreArea, '');
+	
+    SELECT @NombreAreaTitulo AS NombreAreaParaTitulo;
+
     -- Validar que idEventoInventario exista en la tabla EVENTOSINVENTARIO
     IF NOT EXISTS (SELECT 1 FROM dbo.EVENTOSINVENTARIO WHERE idEventoInventario = @idEventoInventario)
     BEGIN
@@ -26,7 +39,7 @@ BEGIN
         LI.idLevantamientoInventario,
         LI.idBien,
         B.NoInventario,
-        M.Nombre AS Marca,
+        M.Nombre AS NombreMarca,
         B.Modelo,
         B.Serie,
         LI.Observaciones AS ObservacionesLevantamiento,
