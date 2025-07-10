@@ -4,12 +4,26 @@ GO
 /**********************************************************************************
 	Elaboró: PODER JUDICIAL DEL ESTADO DE OAXACA - DEPARTAMENTO DE BASE DE DATOS
 	Fecha de Creación: 22/05/2025
-	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR BIENES ASIGNADOS AL ÁREA DE UN EVENTO DE INVENTARIO
+	Descripción: PROCEDIMIENTO ALMACENADO PARA SELECCIONAR BIENES ASIGNADOS AL ÁREA DE UN EVENTO DE INVENTARIO CON FILTROS
 	Desarrolló: JAIRO MARTINEZ LOPEZ
 --  PA_SEL_BIENES_POR_AREA_EVENTO
 **********************************************************************************/
 ALTER PROCEDURE dbo.PA_SEL_BIENES_POR_AREA_EVENTO (
-    @idEventoInventario INT
+    @idEventoInventario INT,
+    -- Parámetros opcionales para filtros
+    @idBien              INT           = NULL,
+    @NoInventario        NVARCHAR(50)  = NULL, 
+    @Serie               NVARCHAR(100) = NULL, 
+    @Modelo              NVARCHAR(100) = NULL, 
+    @NombreColor         NVARCHAR(100) = NULL, -- Para filtrar por el nombre del color
+    @NombreMarca         NVARCHAR(100) = NULL, -- Para filtrar por el nombre de la marca
+    @NumeroFactura       NVARCHAR(50)  = NULL, -- Para filtrar por el número de factura
+    @Disponibilidad      BIT           = NULL,
+    @ExisteElBien        BIT           = NULL, -- Filtro para el estado del levantamiento
+    @FechaVerificacionDesde DATE       = NULL,
+    @FechaVerificacionHasta DATE       = NULL,
+    @YaVerificado        BIT           = NULL, -- Filtro para saber si ya fue verificado o no
+    @ObservacionesLevantamiento NVARCHAR(MAX) = NULL -- Para filtrar por observaciones del levantamiento
 )
 AS
 BEGIN
@@ -46,15 +60,12 @@ BEGIN
 		CC.Nombre AS Color,
 		CM.Nombre AS Marca,
 		F.NumeroFactura AS NoFactura,
-        --B.Observaciones, -- Observaciones del bien
         B.Activo,        -- Estado activo del bien
         B.Disponibilidad,
-        -- Información del levantamiento si existe para este bien en este evento
         LI.idLevantamientoInventario,
         LI.ExisteElBien,
         LI.FechaVerificacion,
-        --LI.FueActualizado,
-        LI.Observaciones AS ObservacionesLevantamiento, -- Observaciones de la verificación
+        LI.Observaciones AS ObservacionesLevantamiento,
         CASE WHEN LI.idLevantamientoInventario IS NOT NULL THEN 1 ELSE 0 END AS YaVerificado
     FROM
         dbo.BIENES AS B
@@ -69,10 +80,24 @@ BEGIN
     LEFT JOIN
         dbo.LEVANTAMIENTOSINVENTARIO AS LI ON B.idBien = LI.idBien AND LI.idEventoInventario = @idEventoInventario
     WHERE
-        UAA.AreaActualBien = @AreaDelEvento -- Que pertenezca al área del evento
+            UAA.AreaActualBien = @AreaDelEvento -- Que pertenezca al área del evento
         AND B.Activo = 1 -- Solo bienes que están activos en el patrimonio
-		
-
-    RETURN 0;
+        -- Filtros
+        AND (@idBien             IS NULL OR B.idBien           = @idBien)
+        AND (@NoInventario       IS NULL OR B.NoInventario     LIKE '%' + @NoInventario + '%')
+        AND (@Serie              IS NULL OR B.Serie            LIKE '%' + @Serie + '%')
+        AND (@Modelo             IS NULL OR B.Modelo           LIKE '%' + @Modelo + '%')
+        AND (@NombreColor        IS NULL OR CC.Nombre          LIKE '%' + @NombreColor + '%')
+        AND (@NombreMarca        IS NULL OR CM.Nombre          LIKE '%' + @NombreMarca + '%')
+        AND (@NumeroFactura      IS NULL OR F.NumeroFactura    LIKE '%' + @NumeroFactura + '%')
+        AND (@Disponibilidad     IS NULL OR B.Disponibilidad   = @Disponibilidad)
+        AND (@ExisteElBien       IS NULL OR LI.ExisteElBien    = @ExisteElBien)
+        AND (@FechaVerificacionDesde IS NULL OR LI.FechaVerificacion >= @FechaVerificacionDesde)
+        AND (@FechaVerificacionHasta IS NULL OR LI.FechaVerificacion <= @FechaVerificacionHasta)
+        AND (@ObservacionesLevantamiento IS NULL OR LI.Observaciones LIKE '%' + @ObservacionesLevantamiento + '%')
+        -- El filtro @YaVerificado es especial, ya que depende del CASE WHEN en el SELECT
+        AND (@YaVerificado IS NULL OR CASE WHEN LI.idLevantamientoInventario IS NOT NULL THEN 1 ELSE 0 END = @YaVerificado)
+    ORDER BY
+        B.NoInventario; -- Se mantiene el orden por número de inventario
 END
 GO
